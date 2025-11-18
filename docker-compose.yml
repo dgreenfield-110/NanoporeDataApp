@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  nanopore-app:
+    build: .
+    image: nanopore-app:latest
+    container_name: nanopore-app
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      # tune threads if you run parallel detection in-app
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      # point app to volumes (adjust to your host paths)
+      DATA_ROOT: /data
+      DUCKDB_PATH: /db/nanopore.duckdb
+    volumes:
+      # host paths on the left, container paths on the right
+      - ./host_data:/data:rw          # contains your out_by_voltage/<date>/<...> folders
+      - ./host_db:/db:rw              # keep DuckDB persistent outside container
+      # If you want to hot-reload code during dev:
+      # - ./app:/app/app:rw
+
